@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using PhoneCatalog.Models;
 using System;
 using System.Data;
 using System.Reflection;
@@ -41,5 +42,7 @@ namespace PhoneCatalog.Helpers
             JSONString = JsonConvert.SerializeObject(table);
             return JSONString;
         }
+
+        
     }
 }

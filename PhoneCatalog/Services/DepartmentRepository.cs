@@ -6,217 +6,14 @@ using PhoneCatalog.Helpers;
 
 namespace PhoneCatalog.Services
 {
-    public class DepartmentRepository : ControllerBase, IDepartmentRepository
+    public class DepartmentRepository :  IDepartmentRepository
     {
         private readonly IConfiguration _configuration;
-        private readonly Department _dep;
-        public DepartmentRepository(Department dep, IConfiguration configuration)
+       
+        public DepartmentRepository(IConfiguration configuration)
         {
-            _dep = dep;
+            
             _configuration = configuration;
-        }
-        public Department GetById(int id)
-        {
-            throw new NotImplementedException();
-        }
-        public List<Department> Search(string searchString)
-        {
-            var result = new List<Department>();
-            var sqlExpression = $"SELECT * FROM Departments WHERE Name LIKE {searchString}";
-
-            return result;
-        }
-        public int Create(string name)
-        {
-            var departmentId = 0;
-            var sqlExpression = $"INSERT INTO [departments] (Name) VALUES ('{name}');";
-
-            return departmentId;
-        }
-
-        public JsonResult Get_department()
-        {
-            string query = @"
-                    select *  from 
-                    departments";
-            DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("DefaultConnection");
-            MySqlDataReader myReader;
-            using (MySqlConnection myCon = new MySqlConnection(sqlDataSource))
-            {
-                myCon.Open();
-                using (MySqlCommand myCommand = new MySqlCommand(query, myCon))
-                {
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-
-                    myReader.Close();
-                    myCon.Close();
-                }
-            }
-
-            //string json = Helper.DataTableToJSONWithJSONNet(table);
-            return new JsonResult(table);
-        }
-
-        public JsonResult InsertDepartment(string DepName, int ParentsId)
-        {
-            
-            string query = @$"insert into departments (DepName, ParentsId ) values ('{DepName}', '{ParentsId}') ";
-            DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("DefaultConnection");
-            MySqlDataReader myReader;
-            using (MySqlConnection myCon = new MySqlConnection(sqlDataSource))
-            {
-                myCon.Open();
-                using (MySqlCommand myCommand = new MySqlCommand(query, myCon))
-                {
-                    myCommand.Parameters.AddWithValue("@DepName", _dep.DepName);
-                    myCommand.Parameters.AddWithValue("@ParentsId", _dep.ParentsId);
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-
-                    myReader.Close();
-                    myCon.Close();
-                }
-            }
-            return new JsonResult("Added Succesfully!");
-        }
-        public JsonResult UpdateDepartment(int DepId, string DepName, int ParentsId)
-        {
-            string query = @$"
-                    update departments set DepName = '{DepName}', ParentsId= '{ParentsId}' where DepId = '{DepId}'";
-            DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("DefaultConnection");
-            MySqlDataReader myReader;
-            using (MySqlConnection myCon = new MySqlConnection(sqlDataSource))
-            {
-                myCon.Open();
-                using (MySqlCommand myCommand = new MySqlCommand(query, myCon))
-                {
-                    myCommand.Parameters.AddWithValue("@DepId", _dep.DepId);
-                    myCommand.Parameters.AddWithValue("@DepName", _dep.DepName);
-                    myCommand.Parameters.AddWithValue("@ParentsId", _dep.ParentsId);
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-
-                    myReader.Close();
-                    myCon.Close();
-                }
-            }
-            return new JsonResult("Update Succesfully!");
-
-        }
-        public JsonResult DeleteDepartment(int DepId)
-        {
-            string query = @$"
-                    delete from departments where DepId = '{DepId}' ";
-            DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("DefaultConnection");
-            MySqlDataReader myReader;
-            using (MySqlConnection myCon = new MySqlConnection(sqlDataSource))
-            {
-                myCon.Open();
-                using (MySqlCommand myCommand = new MySqlCommand(query, myCon))
-                {
-                    myCommand.Parameters.AddWithValue("@DepId", DepId);
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-
-                    myReader.Close();
-                    myCon.Close();
-                }
-            }
-            return new JsonResult("Deleted Succesfully!");
-        }
-
-       /* public ActionResult<List<DepartmentInfo>> GetSubDepartments(int id)
-        {
-            var info = new DepartmentInfo();
-            var query = @$"
-                    select * from 
-                    departments where DepID = {id}";
-            var table = new DataTable();
-            var sqlDataSource = _configuration.GetConnectionString("DefaultConnection");
-            MySqlDataReader myReader;
-            using (var myCon = new MySqlConnection(sqlDataSource))
-            {
-                myCon.Open();
-                using (var myCommand = new MySqlCommand(query, myCon))
-                {
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-                    myReader.Close();
-                    myCon.Close();
-                }
-            }
-            foreach (var v in table.AsEnumerable())
-            {
-                info.Department = Helper.CreateItemFromRow<Department>(v);
-            }
-
-            return StatusCode(200, GetChildDepartments(id));
-        }
-        private List<DepartmentInfo> GetChildDepartments(int id)
-        {
-            var result = new List<DepartmentInfo>();
-            var query = @$"
-                    select * from 
-                    departments where ParentsId = '{id}'";
-            var sqlDataSource = _configuration.GetConnectionString("DefaultConnection");
-            MySqlConnection myCon = new MySqlConnection(sqlDataSource);
-            myCon.Open();
-            MySqlCommand myCommand = new MySqlCommand(query, myCon);
-            MySqlDataReader myReader = myCommand.ExecuteReader();
-            while (myReader.Read())
-            {
-                int DepId = myReader.GetInt32(0);
-                string DepName = myReader.GetString(1);
-                int ParentsID = myReader.GetInt32(2);
-                Department department = new Department()
-                {
-                    DepId = DepId,
-                    DepName = DepName,
-                    ParentsId = ParentsID,
-                };
-            }
-            
-            myReader.Close();
-            myCon.Close();
-            foreach (var v in table.AsEnumerable()) //я хрен знает что делать с этим куском кода
-            {
-                var item = Helper.CreateItemFromRow<Department>(v);
-                result.Add(new DepartmentInfo { Department = item, Childs = GetChildDepartments(item.DepId) });
-            }
-
-            return result;
-        }*/
-
-        Department IDepartmentRepository.InsertDepartment(string DepName, int ParentsId)
-        {
-            throw new NotImplementedException();
-        }
-
-      
-
-        Department IDepartmentRepository.GetById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        List<Department> IDepartmentRepository.Search(string searchString)
-        {
-            throw new NotImplementedException();
-        }
-
-        Department IDepartmentRepository.UpdateDepartment(int DepID, string DepName, int ParentsId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Department IDepartmentRepository.DeleteDepartment(int DepID)
-        {
-            throw new NotImplementedException();
         }
 
         int IDepartmentRepository.Create(string name)
@@ -224,12 +21,212 @@ namespace PhoneCatalog.Services
             throw new NotImplementedException();
         }
 
-        public Department GetDepartments()
+        Department IDepartmentRepository.DeleteDepartment(int DepId)
+        {
+            Department result = new Department();
+            string query = $"delete from departments  where DepId like '{DepId}' ";
+            DataTable table = new DataTable();
+            string sql = _configuration.GetConnectionString("DefaultConnection");
+            MySqlDataReader reader;
+            using (MySqlConnection conn = new MySqlConnection(sql))
+            {
+                conn.Open();
+                using (MySqlCommand command = new MySqlCommand(query, conn))
+                {
+                    command.Parameters.AddWithValue("@Dep", DepId);
+                    reader = command.ExecuteReader();
+                    table.Load(reader);
+
+                    reader.Close();
+                    conn.Close();
+                }
+            }
+            return result;
+        }
+
+        Department IDepartmentRepository.GetById(int id)
         {
             throw new NotImplementedException();
         }
 
-        public List<Department> SubDepartments(int DepId)
+        List<Department> IDepartmentRepository.GetDepartments()
+        {
+            List<Department> result = new List<Department>();
+            string query = _configuration.GetConnectionString("DefaultConnection");
+            MySqlConnection conn = new MySqlConnection(query);
+            conn.Open();
+            string sql = "SELECT * FROM departments";
+            MySqlCommand command = new MySqlCommand(sql, conn);
+            MySqlDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                int depId = reader.GetInt32(0);
+                int parentsId = reader.GetInt32(1);
+                string depName = reader.GetString(2);
+
+                Department dep = new Department()
+                {
+                    DepId = depId,
+                    DepName = depName,
+                    ParentsId = parentsId
+                };
+                result.Add(dep);
+
+            }
+            reader.Close();
+            conn.Close();
+            return result;
+        }
+
+        public Department InsertDepartment(string DepName, int ParentsId)
+        {
+            Department result = new Department();
+            string query = @$"insert into departments (DepName, ParentsId ) values ('{DepName}', '{ParentsId}') ";
+            DataTable table = new DataTable();
+            string sql = _configuration.GetConnectionString("DefaultConnection");
+            MySqlDataReader reader;
+            using (MySqlConnection conn = new MySqlConnection(sql))
+            {
+                conn.Open();
+                using (MySqlCommand command = new MySqlCommand(query, conn))
+                {
+                    command.Parameters.AddWithValue("@DepName", DepName);
+                    command.Parameters.AddWithValue("@ParentsId", ParentsId);
+                    reader = command.ExecuteReader();
+                    table.Load(reader);
+
+                    reader.Close();
+                    conn.Close();
+                }
+            }
+            return result;
+        }
+
+        Department IDepartmentRepository.Search(string searchString)
+        {
+            Department result = new Department();
+            string query = _configuration.GetConnectionString("DefaultConnection");
+            MySqlConnection conn = new MySqlConnection(query);
+            conn.Open();
+            string sql = $"SELECT * FROM departments where DepName like '{searchString}'";
+            MySqlCommand command = new MySqlCommand(sql, conn);
+            MySqlDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                int depId = reader.GetInt32(0);
+                int parentsId = reader.GetInt32(1);
+                string depName = reader.GetString(2);
+
+                Department dep = new Department()
+                {
+                    DepId = depId,
+                    DepName = depName,
+                    ParentsId = parentsId
+                };
+                result = dep;
+
+            }
+            reader.Close();
+            conn.Close();
+            return result;
+        }
+
+         
+
+            /*public ActionResult<List<DepartmentInfo>> GetSubDepartments(int id)
+             {
+                 var info = new DepartmentInfo();
+                 var query = @$"
+                     select * from 
+                     departments where DepID = {id}";
+                 var table = new DataTable();
+                 var sqlDataSource = _configuration.GetConnectionString("DefaultConnection");
+                 MySqlDataReader myReader;
+                 using (var myCon = new MySqlConnection(sqlDataSource))
+                 {
+                     myCon.Open();
+                     using (var myCommand = new MySqlCommand(query, myCon))
+                     {
+                         myReader = myCommand.ExecuteReader();
+                         table.Load(myReader);
+                         myReader.Close();
+                         myCon.Close();
+                     }
+                 }
+                 foreach (var v in table.AsEnumerable())
+                 {
+                     info.Department = Helper.CreateItemFromRow<Department>(v);
+                 }
+
+                 return StatusCode(200, GetChildDepartments(id));
+             }
+             private List<DepartmentInfo> GetChildDepartments(int id)
+             {
+                 var result = new List<DepartmentInfo>();
+                 var query = @$"
+                     select * from 
+                     departments where ParentsId = '{id}'";
+                 var sql = _configuration.GetConnectionString("DefaultConnection");
+                 MySqlConnection conn = new MySqlConnection(sql);
+                 conn.Open();
+                 MySqlCommand command = new MySqlCommand(query, conn);
+                 MySqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        int depId = reader.GetInt32(0);
+                        string depName = reader.GetString(1);
+                        int parentsId = reader.GetInt32(2);
+                        
+                        Department dep = new Department()
+
+
+                        {
+                            DepId = depId,
+                            DepName = depName,
+                            ParentsId = parentsId
+                        };
+                        result.Add((DepartmentInfo)dep);
+
+                    }
+                    reader.Close();
+                    conn.Close();
+
+            foreach (var v in result.AsEnumerable())
+                 {
+                     var item = Helper.CreateItemFromRow<Department>(v);
+                     result.Add(new DepartmentInfo { Department = (Department)item, Childs = GetChildDepartments(item.DepId) });
+                 }
+
+                 return result;
+             }*/
+   
+
+    Department IDepartmentRepository.UpdateDepartment(int DepId, string DepName, int ParentsId)
+        {
+            Department result = new Department();
+            string query = $"update departments set DepName = '{DepName}', ParentsId= '{ParentsId}' where DepId = '{DepId}'";
+            DataTable table = new DataTable();
+            string sql = _configuration.GetConnectionString("DefaultConnection");
+            MySqlDataReader reader;
+            using (MySqlConnection conn = new MySqlConnection(sql))
+            {
+                conn.Open();
+                using (MySqlCommand command = new MySqlCommand(query, conn))
+                {
+                    command.Parameters.AddWithValue("@DepId", DepId);
+                    command.Parameters.AddWithValue("@DepName", DepName);
+                    command.Parameters.AddWithValue("@ParentsId", ParentsId);
+                    reader = command.ExecuteReader();
+                    table.Load(reader);
+
+                    reader.Close();
+                    conn.Close();
+                }
+            }
+            return result;
+        }
+
+        public List<Department> SubDepartments(int id)
         {
             throw new NotImplementedException();
         }

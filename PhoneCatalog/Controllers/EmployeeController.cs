@@ -20,69 +20,83 @@ namespace PhoneCatalog.Controllers
             _configuration = configuration;
         }
 
-        // GET api/<EmployeeController>/5
-        [HttpGet("view")]
+        [HttpGet]
+        [Route("get employees")]
 
-        public Employee GetEmployee()
+        public List<Employee> GetEmployees()
         {
-            return _repository.GetEmployee();
+            return _repository.GetEmployees();
         }
 
-        [HttpPost("insert")]
-
+        [HttpPost]
+        [Route("insert employee")]
         public Employee InsertEmployee(int EmpId, string FirstName, string LastName, int PhoneNumber, string Email, int DepId)
         {
             return _repository.InsertEmployee(EmpId, FirstName, LastName, PhoneNumber, Email, DepId);
+
+
+        }
+
+        [HttpDelete]
+        [Route("delete")]
+
+        public Employee DeleteEmployee(int EmpId)
+        {
+            return _repository.DeleteEmployee(EmpId);
+
+
+        }
+
+        [HttpGet]
+        [Route("searh department")]
+        public List<Employee> SearchDepartment(int DepId)
+        {
+            return _repository.SearchDepartment(DepId);
+        }
+
+        [HttpGet]
+        [Route("searh Email")]
+        public Employee SearchEmail(string Email)
+        {
+            return _repository.SearchEmail(Email);
         }
 
 
-        [HttpPut("update")]
+        [HttpGet]
+        [Route("searh Name")]
+        public List<Employee> SearchName(string searchName)
+        {
+            return _repository.SearchName(searchName);
+        }
 
-       public Employee UpdateEmployee(int EmpId, string FirstName, string LastName, int PhoneNumber, string Email, int DepId)
+        [HttpGet]
+        [Route("searh LastName")]
+        public List<Employee> SearchLastName(string searchLastName)
+        {
+            return _repository.SearchLastname(searchLastName);
+        }
+
+        [HttpGet]
+        [Route("searh PhoneNumber")]
+        public Employee SearchPhoneNumber(int PhoneNumber)
+        {
+            return _repository.SearchPhoneNumber(PhoneNumber);
+        }
+
+        [HttpPut]
+        [Route("update employee")]
+        
+        public Employee UpdateEmployee(int EmpId, string FirstName, string LastName, int PhoneNumber, string Email, int DepId)
         {
             return _repository.UpdateEmployee(EmpId, FirstName, LastName, PhoneNumber, Email, DepId);
         }
 
-        [HttpDelete("{id}")]
+        [HttpPut]
+        [Route("update department")]
 
-       public Employee DeleteEmployee(int EmpId)
-        {
-            return _repository.DeleteEmployee(EmpId);
-        }
-
-        [HttpPut("update/department")]
-
-        public Employee DepartmentEmployeeUpdate(int EmpId, int DepId)
+        public Employee UpdateDepartment(int EmpId, int DepId)
         {
             return _repository.UpdateDepartment(EmpId, DepId);
-        }
-
-        [HttpPost("Search/Name")]
-        
-        public IEnumerable<Employee> SearchName([FromQuery]string searchName)
-        {
-             return _repository.SearchName(searchName);
-        }
-        public IEnumerable<Employee> SearchLastName([FromQuery] string searchLastName)
-        {
-            return _repository.SearchName(searchLastName);
-        }
-        [HttpPost("Search/Email")]
-        public Employee SearchEmail(string searchEmail)
-        {
-            return _repository.SearchEmail(searchEmail);
-        }
-
-        [HttpPost("Search/PhoneNumber")]
-        
-        public Employee SearchPhoneNumber(int PhoneNumber)
-        {
-            return _repository.SearchPhoneNumber(PhoneNumber);  
-        }
-        [HttpPost("Search/DepId")]
-        public IEnumerable<Employee> SearchDepartment([FromQuery] int DepId)
-        {
-            return _repository.SearchDepartment(DepId);
         }
     }
 

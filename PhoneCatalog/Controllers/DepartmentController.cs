@@ -9,7 +9,7 @@ using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using PhoneCatalog.Services;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
 
 namespace PhoneCatalog.Controllers 
 {
@@ -26,39 +26,50 @@ namespace PhoneCatalog.Controllers
         }
 
         [HttpGet]
+        [Route("view departments")]
 
-        public Department GetDepartment()
+        public List<Department> GetDepartments()
         {
             return _repository.GetDepartments();
         }
 
-        [HttpPost("insert")]
+        [HttpPost]
+        [Route("insert")]
 
         public Department InsertDepartment(string DepName, int ParentsId)
         {
-            return _repository.InsertDepartment(DepName, ParentsId);
-        }
-        [HttpPut("Update")]
+           return _repository.InsertDepartment(DepName, ParentsId);
 
-        public Department UpdateDepartment(int DepId, string DepName, int ParentsId)
+            
+        }
+        [HttpGet]
+        [Route("search department")]
+
+        public Department Search(string searchString)
         {
-            return _repository.UpdateDepartment(DepId, DepName, ParentsId);
+            return _repository.Search(searchString);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("delete")]
 
         public Department DeleteDepartment(int DepId)
         {
             return _repository.DeleteDepartment(DepId);
+
+
         }
 
-        [HttpGet("sub/{id}")]
-        
-         public IEnumerable<Department> SubDepartments([FromQuery] int DepId)
-         {
-             return _repository.SubDepartments(DepId);
-         }
+        [HttpPut]
+        [Route("update department")]
 
+
+        public Department UpdateDepartment(int DepId, string DepName, int ParentsId)
+        {
+            return _repository.UpdateDepartment(DepId, DepName, ParentsId);
+
+
+        }
     }
 
 }

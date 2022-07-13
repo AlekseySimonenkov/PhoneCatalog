@@ -4,7 +4,7 @@ namespace PhoneCatalog.Services
 {
     public interface IEmployeeRepository
     {
-        public Employee GetEmployee();
+        List<Employee> GetEmployees();
         public Employee InsertEmployee(int EmpId, string FirstName, string LastName, int PhoneNumber, string Email, int DepId);
         public Employee UpdateEmployee(int EmpId, string FirstName, string LastName, int PhoneNumber, string Email, int DepId);
         public Employee UpdateDepartment(int EmpId, int DepId);
