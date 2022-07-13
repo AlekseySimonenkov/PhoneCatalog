@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Data;
 using System.Reflection;
 
 namespace PhoneCatalog.Helpers
 {
-    public class Helper
+    public static class Helper
     {
         public static T CreateItemFromRow<T>(DataRow row) where T : new()
         {
@@ -32,6 +33,13 @@ namespace PhoneCatalog.Helpers
                     p.SetValue(item, row[c], null);
                 }
             }
+        }
+
+        public static string DataTableToJSONWithJSONNet(DataTable table)
+        {
+            string JSONString = string.Empty;
+            JSONString = JsonConvert.SerializeObject(table);
+            return JSONString;
         }
     }
 }

@@ -1,25 +1,45 @@
-var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+using Newtonsoft.Json.Serialization;
+using Microsoft.AspNetCore.ResponseCompression;
+using Newtonsoft.Json.Converters;
+using System.Configuration;
+using PhoneCatalog.Services;
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
+  
+            var builder = WebApplication.CreateBuilder(args);
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+            
+            builder.Services.AddTransient<IDepartmentRepository, DepartmentRepository>();
+            builder.Services.AddTransient<IEmployeeRepository, EmployeeRepository>();
+            builder.Services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+                options.SerializerSettings.Converters.Add(new StringEnumConverter { NamingStrategy = new CamelCaseNamingStrategy() });
+            }); ;
+            
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
-app.UseHttpsRedirection();
+       
 
-app.UseAuthorization();
 
-app.MapControllers();
+            var app = builder.Build();
 
-app.Run();
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+
+            app.UseHttpsRedirection();
+
+            app.UseAuthorization();
+
+            app.MapControllers();
+
+
+            app.Run();
+        
